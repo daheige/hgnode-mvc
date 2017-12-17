@@ -33,3 +33,5 @@ maps/**.css.map
 public/assets/h5/**.map
 public/assets/h5/*.css.map
 public/assets/h5/*.min.css.map
+public/js_src/
+public/js_src/*
