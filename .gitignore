@@ -5,6 +5,7 @@ install.lock
 *.map
 **.map
 **.css.map
+*.package-lock.json
 test_img/
 maps/
 maps/**.css.map
