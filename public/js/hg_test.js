@@ -1,0 +1,1 @@
+"use strict";require([],function(){for(var e=[1,2,3],o=0;o<e.length;o++)console.log(o);console.log("daheige auto babel,hello")});

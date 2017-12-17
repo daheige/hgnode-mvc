@@ -1,0 +1,44 @@
+#!/bin/sh
+# chkconfig: 2345 64 36
+# description: $appName start scripts.
+# nodejs >= 7.6.0
+root_dir=$(cd "$(dirname "$0")"; cd ..; pwd)
+export NODE_HOME=/usr/local/nodejs
+export PATH=$NODE_HOME/bin:$PATH
+#EXEC=pm2
+EXEC=NODE_HOME/bin/pm2
+appName=hgnode #app名字
+cd $root_dir
+case "$1" in
+    start)
+    echo "Starting ${appName}..."
+    $EXEC start $root_dir/bootstrap/boot.json --env production
+    ;;
+    stop)
+    echo "Stoping app node..."
+    $EXEC stop $appName
+    ;;
+    *)
+    echo "Please use (start|stop|restart|delete|show|logs|monit) as first agrument"
+    ;;
+    restart)
+    echo "restart ${appName}..."
+    $EXEC restart $appName
+    ;;
+    delete)
+    echo "delete ${appName}..."
+    $EXEC delete $appName
+    ;;
+    show)
+    echo "show ${appName}..."
+    $EXEC show $appName
+    ;;
+    logs)
+    echo "logs ${appName}..."
+    $EXEC logs $appName
+    ;;
+    monit)
+    echo "monit ${appName}..."
+    $EXEC monit $appName
+    ;;
+esac

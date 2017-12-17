@@ -1,0 +1,103 @@
+{
+
+    "es5": true,
+
+    "node": true,
+
+    "bitwise": false,
+
+    "camelcase": false,
+
+    "curly": false,
+
+    "eqeqeq": false,
+
+    "forin": true,
+
+    "strict": false,
+
+    "freeze": true,
+
+    "immed": true,
+
+    "indent": 4,
+
+    "latedef": false,
+
+    "newcap": true,
+
+    "noarg": true,
+
+    "noempty": false,
+
+    "nonbsp": true,
+
+    "nonew": false,
+
+    "plusplus": false,
+
+    "undef": true,
+
+    "trailing": true,
+
+    "debug": true,
+
+    "funcscope": false,
+    "futurehostile": true,
+
+    "regexdash": false,
+
+    "unused": false,
+
+    "smarttabs": false,
+
+    "loopfunc": true,
+
+    "eqnull": true,
+
+    "laxcomma": false,
+
+    "multistr": true,
+
+    "laxbreak": true,
+
+    "evil": true,
+
+    "onecase": true,
+
+    "onevar": false,
+
+    "asi": false,
+
+    "notypeof": false,
+
+    "varstmt": false,
+
+    "lastsemic": false,
+
+    "browser": false,
+
+    "jquery": true,
+
+    "devel": true,
+
+    "globals":
+    {
+        "define": true,
+        "module": true,
+        "export": true,
+        "console": true,
+        "THREE": true,
+        "TWEEN": true,
+        "Stats": true,
+        "require": true,
+        "toast": true,
+        "window": true,
+        "document": true,
+        "localStorage":true,
+        "location": true,
+        "unescape":true,
+        "getComputedStyle":true,
+        "Vue": true
+    }
+}

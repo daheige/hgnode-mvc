@@ -1,0 +1,14 @@
+{% extends 'layout/base.html' %}
+{% block header %}
+    <style type="text/css">
+        body{
+            -webkit-overflow-scrolling:touch;
+        }
+    </style>
+{% endblock %}
+{% block content %}
+    <div>welcome to {{ title }}</div>
+    <img src="/assets/images/heige.jpeg"/>
+    {{ JS_SRC }}
+    {{ require_js }}
+{% endblock %}

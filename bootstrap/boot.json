@@ -1,0 +1,45 @@
+{
+    "apps": [{
+        "name": "hgnode", //应用的名字
+        "script": "./bootstrap/www",
+        "log_date_format": "YYYY-MM-DD HH:mm Z",
+        "error_file": "./logs/hgnode-error.log",
+        "out_file": "./logs/hgnode-out.log",
+        "pid_file": "./logs/pids/hgnode.pid",
+        "instances": 2, //实例个数
+        "min_uptime": "200s",
+        "max_restarts": 10,
+        "max_memory_restart": "1000M",
+        "cron_restart": "0 0 * * *", //utc时间，每天凌晨0点重启一次
+        "watch": [ // 监控变化的目录，一旦变化，自动重启
+            "bin",
+            "apps"
+        ],
+        "ignore_watch": [ // 从监控目录中排除
+            "node_modules",
+            "public"
+        ],
+        "merge_logs": true,
+        "exec_interpreter": "node",
+        //cluster（集群），默认是fork
+        "exec_mode": "cluster",
+        "autorestart": true,
+        "vizion": false,
+        "env": {
+            "NODE_ENV": "production",
+            "NODE_PORT": "1337"
+        },
+        "env_production": {
+            "NODE_ENV": "production",
+            "NODE_PORT": "1337"
+        },
+        "env_staging": {
+            "NODE_ENV": "staging",
+            "NODE_PORT": "1338"
+        },
+        "env_test": {
+            "NODE_ENV": "testing",
+            "NODE_PORT": "1336"
+        }
+    }]
+}

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="format-detection" content="telephone=no,email=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-touch-fullscreen" content="yes">
+     {% block seo %}
+        <meta name="keywords" content="daheige">
+        <meta name="description" content="">
+    {% endblock %}
+    <title>{% block title %}{% if title %}{{ title }}{% endif %}{% endblock %}</title>
+    <script src="{{ constants.JS_SRC }}library/scale_750.js"></script>
+    <script type="text/javascript">
+        var HGNODE = {
+            'DOMAIN'        : '{{ constants.DOMAIN }}',
+            'ASSETS_STATIC' : '{{ constants.ASSETS_STATIC }}',
+            'H5_STATIC'     : '{{ constants.ASSETS_STATIC }}h5/dist',
+            'JS_SRC'        : '{{ constants.JS_SRC }}',
+            'JS_VERSION'    : '{% if require_js %}{{ require_js | getJsVersion}}{% else %}{{ constants.APP_VERSION }}{% endif %}',
+            'IS_PRO'        :  {% if IS_PRO %}1{% else %}0{% endif %}
+        };
+    </script>
+    {% block header %}{% endblock %}
+</head>
+<body>
+    {% block content %}{% endblock %}
+    <script src="{{ constants.JS_SRC }}requirejs/require.js"></script>
+    <script type="text/javascript">
+        var is__production = 1;
+        require({
+            baseUrl: HGNODE.JS_SRC,
+            urlArgs: 'js_version='+HGNODE.JS_VERSION
+        });
+        require(["config"], function () {
+            require(["{% if require_js %}{{ require_js }}{% else %}empty{% endif %}"]);
+        });
+    </script>
+    {% block footer %}{% endblock %}
+</body>
+</html>
