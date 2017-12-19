@@ -1,5 +1,5 @@
 //基本的常量配置
-let js_base_path = APP_ENV != 'production' ? 'js_src/' : 'es6/';
+let js_base_path = APP_ENV != 'production' ? 'js_src/' : 'js/';
 let assets_domain = '/';
 module.exports = {
     DOMAIN: '/',

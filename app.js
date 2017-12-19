@@ -14,6 +14,10 @@ Object.defineProperty(global, 'APP_ENV', {
     writable: false,
     configurable: false,
 });
+if (!['testing', 'production', 'staging'].includes(APP_ENV)) {
+    throw new Error("error node env!");
+}
+
 const env_info = require(root_path + '/bootstrap/env/' + APP_ENV);
 Object.defineProperty(global, 'ENV_INFO', {
     value: env_info,

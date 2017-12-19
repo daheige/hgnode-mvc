@@ -28,7 +28,6 @@
     {% block content %}{% endblock %}
     <script src="{{ constants.JS_SRC }}requirejs/require.js"></script>
     <script type="text/javascript">
-        var is__production = 1;
         require({
             baseUrl: HGNODE.JS_SRC,
             urlArgs: 'js_version='+HGNODE.JS_VERSION
