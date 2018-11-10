@@ -6,8 +6,8 @@
  * 使用之前请安装redis2.8.0
  * npm install -g redis
  * 用法
- * var redisHandler = require('./redisHandler');
- * var redisObj = redisHandler(redis_config);
+ * var redisHandler = require('./redisHandler')
+ * var redisObj = redisHandler.getInstance(redis_config);
  * redisObj.setVal('username','heige');
  * //redisObj.getVal('username');
  * var redisProxy = redisObj.getProxy();
@@ -110,17 +110,17 @@ class redisHandler { //采用单例模式进行redis连接
      * 设置Redis自动转换为json，防止缓存击穿
      */
     setBylock(key, value, expire = 0) {
-            expire = parseInt(expire) > 0 ? parseInt(expire) : 600;
-            let r_exp = expire + 100;
-            let c_exp = Math.floor((new Date()).getTime() / 1000) + expire;
-            let arg = JSON.stringify({
-                data: value,
-                expire: c_exp
-            });
-            this.client.set(key, arg);
-            this.client.del(key + '.lock');
-        }
-        //获取redis的值，自动格式化为对象，通过Promise的方式返回获取的结果
+        expire = parseInt(expire) > 0 ? parseInt(expire) : 600;
+        let r_exp = expire + 100;
+        let c_exp = Math.floor((new Date()).getTime() / 1000) + expire;
+        let arg = JSON.stringify({
+            data: value,
+            expire: c_exp
+        });
+        this.client.set(key, arg);
+        this.client.del(key + '.lock');
+    }
+    //获取redis的值，自动格式化为对象，通过Promise的方式返回获取的结果
     getByLock(key) {
         var _this = this;
         return new Promise(function(resolve, reject) {
@@ -169,4 +169,5 @@ class redisHandler { //采用单例模式进行redis连接
         return this.client;
     }
 }
-module.exports = redisHandler.getInstance;
+
+module.exports = redisHandler;
