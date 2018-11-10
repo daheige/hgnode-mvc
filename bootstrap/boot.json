@@ -37,9 +37,13 @@
             "NODE_ENV": "staging",
             "NODE_PORT": "1338"
         },
-        "env_test": {
+        "env_dev": {
             "NODE_ENV": "testing",
-            "NODE_PORT": "1336"
+            "NODE_PORT": "1337"
+        },
+        "env_testing": {
+            "NODE_ENV": "testing",
+            "NODE_PORT": "1337" //端口请根据实际情况修改
         }
     }]
 }

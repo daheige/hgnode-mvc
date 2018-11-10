@@ -4,7 +4,7 @@ var app = require('../app');
 var http = require('http');
 
 //app运行环境和端口设置
-var port = normalizePort(app.get('node_port') || '1336');
+var port = normalizePort(ENV_INFO.NODE_PORT || '1337');
 app.set('port', port);
 
 /**

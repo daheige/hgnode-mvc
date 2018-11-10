@@ -5,8 +5,7 @@ root_dir=$(cd "$(dirname "$0")"; cd ..; pwd)
 mkdir -p $root_dir/logs/pids
 chmod 755 $root_dir/logs
 
-node_home=/usr/local/nodejs
-pm2_exec=$node_home/bin/pm2
+pm2_exec=`which pm2`
 appName=hgnode #应用的名字
 
 if [ ! -f "$pm2_exec" ]; then

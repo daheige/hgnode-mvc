@@ -1,20 +1,15 @@
 {
     "name": "hgnode",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "private": true,
     "scripts": {
         "start": "node ./bootstrap/www"
     },
     "dependencies": {
-        "body-parser": "~1.17.1",
-        "cookie-parser": "~1.4.3",
-        "debug": "~2.6.3",
-        "express": "~4.15.4",
-        "gulp": "^3.9.1",
-        "helmet": "^3.8.1",
-        "morgan": "~1.8.1",
-        "nunjucks": "~3.0.1",
-        "redis": "2.8.0",
-        "xss": "^0.3.4"
+        "body-parser": "^1.18.3",
+        "cookie-parser": "^1.4.3",
+        "express": "^4.16.4",
+        "helmet": "^3.15.0",
+        "nunjucks": "^3.1.4"
     }
 }

@@ -4,7 +4,7 @@ let assets_domain = '/';
 module.exports = {
     DOMAIN: '/',
     PUBLIC_PATH: ROOT_PATH + '/public',
-    APP_NAME: 'daheige_koa',
+    APP_NAME: 'hgnode-mvc',
     APP_VERSION: '1.0.0',
     ASSETS_STATIC: assets_domain + 'assets/',
     JS_SRC: assets_domain + js_base_path,

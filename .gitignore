@@ -10,11 +10,7 @@ test_img/
 maps/
 maps/**.css.map
 **.min.css.map
-logs/pids/*.pid
-logs/*.log
-node_modules
 node_modules/*
-public/node_modules
 public/node_modules/*
 public/package-lock.json
 public/assets/**/*.map
@@ -36,3 +32,5 @@ public/assets/h5/*.css.map
 public/assets/h5/*.min.css.map
 public/js_src/
 public/js_src/*
+logs/*
+yarn.lock

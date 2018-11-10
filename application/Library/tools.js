@@ -1,9 +1,9 @@
 //加载通用逻辑容器
 function loadLogicFunc(layer, name, group) {
     layer = layer.substring(0, 1).toUpperCase() + layer.substring(1);
-    let path = '../' + layer + '/';
+    let path = APP_PATH + '/' + layer + '/';
     if (typeof group != 'undefined' && group) {
-        path = '../' + layer + '/' + group + '/';
+        path = APP_PATH + '/' + layer + '/' + group + '/';
     }
 
     if (typeof name == 'undefined') {
@@ -20,7 +20,7 @@ function loadLayer(layer = 'Controller', name = 'Index', action = 'index') {
         name = arr && arr.length == 2 ? arr[0] + '/' + arr[1] : name;
     }
 
-    let dir = '../' + layer + '/';
+    let dir = APP_PATH + '/' + layer + '/';
     let filename = require(dir + name + layer);
     return filename[action];
 };
