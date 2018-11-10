@@ -108,7 +108,7 @@ module.exports = {
             }
 
             // console.log(url);
-            let http = require('http');
+            let http = url.indexOf("https") > -1 ? require("https") : require('http');
             http.get(url, function(res) {
                 let {
                     statusCode
@@ -131,13 +131,14 @@ module.exports = {
                     });
                 }
                 res.setEncoding('utf8');
-                let rawData = '';
+                let rawData = [];
                 res.on('data', (chunk) => {
-                    rawData += chunk;
+                    rawData.push(chunk);
                 });
 
                 res.on('end', () => {
                     try {
+                        rawData = rawData.join('');
                         let parsedData = JSON.parse(rawData || '[]');
                         return resolve({
                             code: 200,
@@ -198,18 +199,19 @@ module.exports = {
                 }
             };
 
-            let http = require('http');
+            let http = url.indexOf("https") > -1 ? require("https") : require('http');
             let req = http.request(options, (res) => {
                 // console.log(`状态码: ${res.statusCode}`);
                 // console.log(`响应头: ${JSON.stringify(res.headers)}`);
                 res.setEncoding('utf8');
-                let rawData = '';
+                let rawData = [];
                 res.on('data', (chunk) => {
-                    rawData += chunk;
+                    rawData.push(chunk);
                 });
 
                 res.on('end', () => {
                     try {
+                        rawData = rawData.join('');
                         return resolve({
                             code: 200,
                             message: 'ok',
