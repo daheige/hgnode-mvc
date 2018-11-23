@@ -1,3 +1,22 @@
+const uuidLib = require("node-uuid");
+const fs = require('fs');
+const crypto = require('crypto');
+const querystring = require('querystring');
+const urlLib = require('url');
+const https = require("https");
+const http = require('http');
+
+//日志级别从
+let logLevel = {
+    debug: 100,
+    info: 200,
+    notice: 250,
+    warn: 300,
+    error: 400,
+    crit: 500, //临界值错误: 超过临界值的错误
+    alter: 550, //警戒性错误: 必须被立即修改的错误
+};
+
 //加载通用逻辑容器
 function loadLogicFunc(layer, name, group) {
     layer = layer.substring(0, 1).toUpperCase() + layer.substring(1);
@@ -28,17 +47,12 @@ function loadLayer(layer = 'Controller', name = 'Index', action = 'index') {
 //用于md5加密字符串
 function md5(str) {
     str = String(str);
-    let crypto = require('crypto');
     return crypto.createHash('md5').update(str).digest('hex');
 }
 
-module.exports = {
-    //定义常量函数
-    define: function(name, value) {
-        Object.defineProperty(global, name, {
-            value: value,
-            enumerable: true
-        });
+let libs = {
+    uuid: function() {
+        return uuidLib.v4();
     },
     controller: function(name, action) {
         return loadLayer('Controller', name, action);
@@ -56,7 +70,6 @@ module.exports = {
     asset: function(filename, relative_path = 'assets') {
         let filepath = PUBLIC_PATH + '/' + relative_path + '/' + filename; //路径相对于assets
         try {
-            let fs = require('fs');
             let res = fs.statSync(filepath);
             version = res.mtime ? md5('hgnode' + res.mtime) : version;
         } catch (e) {
@@ -71,7 +84,6 @@ module.exports = {
         let version = APP_VERSION;
         //如果加载比较慢，请注释如下代码
         try {
-            let fs = require('fs');
             let res = fs.statSync(filepath);
             version = res.mtime ? md5('hgnode' + res.mtime) : version;
         } catch (e) {
@@ -80,9 +92,20 @@ module.exports = {
 
         return version;
     },
+    parseParams: function(params = {}) {
+        if (typeof params == 'object' && Object.keys(params).length) {
+            params = querystring.stringify(params);
+        } else if (typeof params == 'string' && params) {
+            params = encodeURIComponent(params);
+        } else {
+            params = querystring.stringify(params);
+        }
+
+        return params;
+    },
     md5: md5,
     //get请求，返回结果是一个promise is_format是否要格式化返回数据为对象
-    get(url = '', params = '', is_format = true) {
+    get: function(url = '', params = '', is_format = true) {
         return new Promise(function(resolve, reject) {
             if (typeof url == 'undefined' || url == '') {
                 return reject({
@@ -92,15 +115,7 @@ module.exports = {
                 });
             }
 
-            if (params) {
-                if (typeof params == 'string') {
-                    params = encodeURIComponent(params);
-                } else if (typeof params == "object" && Object.keys(params).length) {
-                    let querystring = require('querystring');
-                    params = querystring.stringify(params);
-                }
-            }
-
+            params = this.parseParams(params);
             if (url.indexOf('?') > -1) {
                 url += params;
             } else {
@@ -108,8 +123,8 @@ module.exports = {
             }
 
             // console.log(url);
-            let http = url.indexOf("https") > -1 ? require("https") : require('http');
-            http.get(url, function(res) {
+            let httpObj = url.indexOf("https") > -1 ? https : http;
+            httpObj.get(url, function(res) {
                 let {
                     statusCode
                 } = res;
@@ -165,7 +180,7 @@ module.exports = {
         });
     },
     //post请求，is_format是否要格式化返回数据为对象
-    post(url = '', params = {}, is_format = true) {
+    post: function(url = '', params = {}, is_format = true) {
         return new Promise(function(resolve, reject) {
             if (typeof url == 'undefined' || url == '') {
                 return reject({
@@ -175,18 +190,8 @@ module.exports = {
                 });
             }
 
-            if (typeof params == 'object' && Object.keys(params).length) {
-                let querystring = require('querystring');
-                params = querystring.stringify(params);
-            } else if (typeof params == 'string' && params) {
-                params = encodeURIComponent(params);
-            } else {
-                let querystring = require('querystring');
-                params = querystring.stringify(params);
-            }
-
+            params = this.parseParams(params);
             //请求参数组装
-            let urlLib = require('url');
             let urlObj = urlLib.parse(url);
             let options = {
                 protocol: urlObj.protocol,
@@ -195,12 +200,13 @@ module.exports = {
                 path: urlObj.path,
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded'
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'Content-Length': Buffer.byteLength(params)
                 }
             };
 
-            let http = url.indexOf("https") > -1 ? require("https") : require('http');
-            let req = http.request(options, (res) => {
+            let httpObj = url.indexOf("https") > -1 ? https : http;
+            let req = httpObj.request(options, (res) => {
                 // console.log(`状态码: ${res.statusCode}`);
                 // console.log(`响应头: ${JSON.stringify(res.headers)}`);
                 res.setEncoding('utf8');
@@ -243,8 +249,59 @@ module.exports = {
             req.end();
         });
     },
+    zeroNum: function(num) {
+        return num > 10 ? num : '0' + num;
+    },
     //用于加载中间件
-    ware(name, action) {
+    ware: function(name, action) {
         return loadLayer('Ware', name, action);
     },
+    log: function(msg = {}, context = {}, level = "info") {
+        if (msg == null || msg == '') {
+            console.log("write data: ", msg);
+            return;
+        }
+
+        if (!fs.existsSync(config.log_dir)) {
+            fs.mkdirSync(config.log_dir);
+        }
+
+        //日志文件
+        let myDate = new Date();
+        let logFile = [myDate.getFullYear(), myDate.getMonth() + 1, myDate.getDate()].join('-') + '.log';
+        //2018-09-09 09:09:09
+        let currentTime = [
+            myDate.getFullYear(),
+            this.zeroNum(myDate.getMonth() + 1),
+            this.zeroNum(myDate.getDate()),
+        ].join('-') + [
+            this.zeroNum(myDate.getHours()),
+            this.zeroNum(myDate.getMinutes()),
+            this.zeroNum(myDate.getSeconds())
+        ].join(':');
+
+        let ms = myDate.getTime();
+        myDate = null;
+
+        //异步写入文件中
+        fs.writeFile(config.log_dir + '/' + logFile, JSON.stringify({
+            code: !logLevel[level] ? logLevel.info : logLevel[level],
+            message: msg,
+            context: context || {},
+            localTime: currentTime,
+            msTime: ms,
+        }) + '\n', {
+            encoding: 'utf8',
+            flag: 'a',
+        }, function(err) {
+            if (err) {
+                console.log('write log file error: ', err);
+                return;
+            }
+
+            console.log('write log success!');
+        });
+    }
 };
+
+module.exports = libs;

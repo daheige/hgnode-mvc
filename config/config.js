@@ -4,5 +4,6 @@ module.exports = {
     functions_list: {
         functions: 1,
         tools: 1,
-    }
+    },
+    log_dir: ROOT_PATH + '/logs'
 }

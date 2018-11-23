@@ -107,10 +107,31 @@ app.locals.IS_PRO = APP_ENV == 'production' ? 1 : 0;
 
 // 打印日志中间件
 app.use((req, res, next) => {
-    const start = new Date();
+    //请求开始
+    let log_id = helper.uuid();
+    helper.log('exec start', {
+        request_uri: req.originalUrl,
+        request_path: req.path,
+        request_data: req.method != 'GET' ? req.body : req.query,
+        ip: req.ip,
+        method: req.method,
+        ua: req.get('User-Agent') || '',
+        log_id: log_id
+    });
+
+    let start = new Date();
     next();
-    const ms = new Date() - start;
+
+    //请求结束
+    let ms = new Date() - start;
     console.log(`${req.method} ${req.originalUrl} - cost:${ms}ms`);
+
+    helper.log('exec end', {
+        request_path: req.path,
+        log_id: log_id,
+        exec_time: ms + 'ms',
+    });
+
     res.set('X-request-time', ms + 'ms');
 });
 
@@ -120,23 +141,32 @@ routers(app);
 
 // catch 404 and forward to error handler
 app.use(async function(req, res, next) {
-    let err = new Error('Page not Found!');
+    let err = new Error('Sorry, we cannot find that!');
     err.status = 404;
     await next(err);
 });
 
-// error handler
+// server error handler
 app.use(function(err, req, res, next) {
-    // set locals, only providing error in development
-    res.locals.message = err.message;
-    //非线上环境，显示具体的错误信息
-    res.locals.error = ['dev', 'staging', 'testing'].includes(APP_ENV) ? err : {
-        message: "server error!"
-    };
+    //捕捉错误日志
+    let errCode = err.status || 500;
+    helper.log('exec error', {
+        request_uri: req.originalUrl,
+        request_path: req.path,
+        request_data: req.method != 'GET' ? req.body : req.query,
+        ip: req.ip,
+        method: req.method,
+        ua: req.get('User-Agent') || '',
+        error: {
+            code: errCode,
+            message: err.message || '',
+        }
+    }, 'error');
 
-    // render the error page
-    res.status(err.status || 500);
-    res.render('errors/error');
+    res.status(errCode).send({
+        code: errCode,
+        message: err.message || 'server error'
+    });
 });
 
 module.exports = app;
