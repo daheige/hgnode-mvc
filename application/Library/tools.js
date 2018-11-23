@@ -6,8 +6,8 @@ const urlLib = require('url');
 const https = require("https");
 const http = require('http');
 
-//日志级别从
-let logLevel = {
+//日志级别从低到高
+const logLevel = {
     debug: 100,
     info: 200,
     notice: 250,
@@ -48,6 +48,53 @@ function loadLayer(layer = 'Controller', name = 'Index', action = 'index') {
 function md5(str) {
     str = String(str);
     return crypto.createHash('md5').update(str).digest('hex');
+}
+
+function writeLog(msg = {}, context = {}, level = "info") {
+    if (msg == null || msg == '') {
+        console.log("write data: ", msg);
+        return;
+    }
+
+    if (!fs.existsSync(config.log_dir)) {
+        fs.mkdirSync(config.log_dir);
+    }
+
+    //日志文件
+    let myDate = new Date();
+    let logFile = [myDate.getFullYear(), myDate.getMonth() + 1, myDate.getDate()].join('-') + '.log';
+    //2018-09-09 09:09:09
+    let currentTime = [
+        myDate.getFullYear(),
+        this.zeroNum(myDate.getMonth() + 1),
+        this.zeroNum(myDate.getDate()),
+    ].join('-') + [
+        this.zeroNum(myDate.getHours()),
+        this.zeroNum(myDate.getMinutes()),
+        this.zeroNum(myDate.getSeconds())
+    ].join(':');
+
+    let ms = myDate.getTime();
+    myDate = null;
+
+    //异步写入文件中
+    fs.writeFile(config.log_dir + '/' + logFile, JSON.stringify({
+        code: !logLevel[level] ? logLevel.info : logLevel[level],
+        message: msg,
+        context: context || {},
+        localTime: currentTime,
+        msTime: ms,
+    }) + '\n', {
+        encoding: 'utf8',
+        flag: 'a',
+    }, function(err) {
+        if (err) {
+            console.log('write log file error: ', err);
+            return;
+        }
+
+        console.log('write log success!');
+    });
 }
 
 let libs = {
@@ -256,51 +303,28 @@ let libs = {
     ware: function(name, action) {
         return loadLayer('Ware', name, action);
     },
-    log: function(msg = {}, context = {}, level = "info") {
-        if (msg == null || msg == '') {
-            console.log("write data: ", msg);
-            return;
-        }
-
-        if (!fs.existsSync(config.log_dir)) {
-            fs.mkdirSync(config.log_dir);
-        }
-
-        //日志文件
-        let myDate = new Date();
-        let logFile = [myDate.getFullYear(), myDate.getMonth() + 1, myDate.getDate()].join('-') + '.log';
-        //2018-09-09 09:09:09
-        let currentTime = [
-            myDate.getFullYear(),
-            this.zeroNum(myDate.getMonth() + 1),
-            this.zeroNum(myDate.getDate()),
-        ].join('-') + [
-            this.zeroNum(myDate.getHours()),
-            this.zeroNum(myDate.getMinutes()),
-            this.zeroNum(myDate.getSeconds())
-        ].join(':');
-
-        let ms = myDate.getTime();
-        myDate = null;
-
-        //异步写入文件中
-        fs.writeFile(config.log_dir + '/' + logFile, JSON.stringify({
-            code: !logLevel[level] ? logLevel.info : logLevel[level],
-            message: msg,
-            context: context || {},
-            localTime: currentTime,
-            msTime: ms,
-        }) + '\n', {
-            encoding: 'utf8',
-            flag: 'a',
-        }, function(err) {
-            if (err) {
-                console.log('write log file error: ', err);
-                return;
-            }
-
-            console.log('write log success!');
-        });
+    log: writeLog,
+    /*======================日志处理==========*/
+    debugLog: function(data = {}, context = {}) {
+        writeLog(data, content, 'debug');
+    },
+    infoLog: function(data = {}, context = {}) {
+        writeLog(data, content, 'info');
+    },
+    warnLog: function(data = {}, context = {}) {
+        writeLog(data, content, 'warn');
+    },
+    noticeLog: function(data = {}, context = {}) {
+        writeLog(data, content, 'notice');
+    },
+    errorLog: function(data = {}, context = {}) {
+        writeLog(data, content, 'error');
+    },
+    critLog: function(data = {}, context = {}) {
+        writeLog(data, content, 'crit');
+    },
+    alterLog: function(data = {}, context = {}) {
+        writeLog(data, content, 'alter');
     }
 };
 
