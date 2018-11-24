@@ -91,6 +91,41 @@ nunjucks.configure(APP_PATH + '/views', {
     }).addFilter('json', JSON.stringify)
     .addFilter('getJsVersion', helper.getJsVersion);
 
+//记录操作日志
+app.use(async function(req, res, next) {
+    let start = new Date();
+    //请求开始
+    let log_id = helper.uuid();
+    let request_id = helper.md5(log_id);
+
+    res.set('x-request-id', request_id);
+    helper.infoLog('exec start', {
+        log_id: log_id,
+        request_id: request_id,
+        request_uri: req.originalUrl,
+        request_path: req.path,
+        request_data: req.method != 'GET' ? req.body : req.query,
+        ip: req.ip,
+        method: req.method,
+        ua: req.get('User-Agent') || '',
+    });
+
+    try {
+        await next();
+
+        let ms = new Date() - start;
+        console.log(`${req.method} ${req.url} - cost:${ms}ms`);
+
+        helper.infoLog('exec end', {
+            log_id: log_id,
+            request_id: request_id,
+            exec_time: ms + 'ms'
+        });
+    } catch (err) {
+        helper.catchPanic(err, req, res, next);
+    }
+});
+
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
     extended: true
@@ -105,40 +140,11 @@ app.use(express.static(root_path + '/public'));
 app.locals.constants = constants;
 app.locals.IS_PRO = APP_ENV == 'production' ? 1 : 0;
 
-// 打印日志中间件
-app.use((req, res, next) => {
-    //请求开始
-    let log_id = helper.uuid();
-    helper.log('exec start', {
-        request_uri: req.originalUrl,
-        request_path: req.path,
-        request_data: req.method != 'GET' ? req.body : req.query,
-        ip: req.ip,
-        method: req.method,
-        ua: req.get('User-Agent') || '',
-        log_id: log_id
-    });
-
-    let start = new Date();
-    next();
-
-    //请求结束
-    let ms = new Date() - start;
-    console.log(`${req.method} ${req.originalUrl} - cost:${ms}ms`);
-
-    helper.log('exec end', {
-        request_path: req.path,
-        log_id: log_id,
-        exec_time: ms + 'ms',
-    });
-
-    res.set('X-request-time', ms + 'ms');
-});
-
 //路由控制
 const routers = require(APP_PATH + '/routes/index'); //路由设置
 routers(app);
 
+//路由找不到的情况
 // catch 404 and forward to error handler
 app.use(async function(req, res, next) {
     let err = new Error('Sorry, we cannot find that!');
@@ -147,26 +153,6 @@ app.use(async function(req, res, next) {
 });
 
 // server error handler
-app.use(function(err, req, res, next) {
-    //捕捉错误日志
-    let errCode = err.status || 500;
-    helper.log('exec error', {
-        request_uri: req.originalUrl,
-        request_path: req.path,
-        request_data: req.method != 'GET' ? req.body : req.query,
-        ip: req.ip,
-        method: req.method,
-        ua: req.get('User-Agent') || '',
-        error: {
-            code: errCode,
-            message: err.message || '',
-        }
-    }, 'error');
-
-    res.status(errCode).send({
-        code: errCode,
-        message: err.message || 'server error'
-    });
-});
+app.use(helper.catchPanic);
 
 module.exports = app;

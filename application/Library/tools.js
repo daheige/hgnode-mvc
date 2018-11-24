@@ -50,6 +50,10 @@ function md5(str) {
     return crypto.createHash('md5').update(str).digest('hex');
 }
 
+function zeroNum(num) {
+    return num > 10 ? num : '0' + num;
+}
+
 function writeLog(msg = {}, context = {}, level = "info") {
     if (msg == null || msg == '') {
         console.log("write data: ", msg);
@@ -66,12 +70,12 @@ function writeLog(msg = {}, context = {}, level = "info") {
     //2018-09-09 09:09:09
     let currentTime = [
         myDate.getFullYear(),
-        this.zeroNum(myDate.getMonth() + 1),
-        this.zeroNum(myDate.getDate()),
-    ].join('-') + [
-        this.zeroNum(myDate.getHours()),
-        this.zeroNum(myDate.getMinutes()),
-        this.zeroNum(myDate.getSeconds())
+        zeroNum(myDate.getMonth() + 1),
+        zeroNum(myDate.getDate()),
+    ].join('-') + ' ' + [
+        zeroNum(myDate.getHours()),
+        zeroNum(myDate.getMinutes()),
+        zeroNum(myDate.getSeconds())
     ].join(':');
 
     let ms = myDate.getTime();
@@ -296,9 +300,7 @@ let libs = {
             req.end();
         });
     },
-    zeroNum: function(num) {
-        return num > 10 ? num : '0' + num;
-    },
+    zeroNum: zeroNum,
     //用于加载中间件
     ware: function(name, action) {
         return loadLayer('Ware', name, action);
@@ -306,25 +308,25 @@ let libs = {
     log: writeLog,
     /*======================日志处理==========*/
     debugLog: function(data = {}, context = {}) {
-        writeLog(data, content, 'debug');
+        writeLog(data, context, 'debug');
     },
     infoLog: function(data = {}, context = {}) {
-        writeLog(data, content, 'info');
+        writeLog(data, context, 'info');
     },
     warnLog: function(data = {}, context = {}) {
-        writeLog(data, content, 'warn');
+        writeLog(data, context, 'warn');
     },
     noticeLog: function(data = {}, context = {}) {
-        writeLog(data, content, 'notice');
+        writeLog(data, context, 'notice');
     },
     errorLog: function(data = {}, context = {}) {
-        writeLog(data, content, 'error');
+        writeLog(data, context, 'error');
     },
     critLog: function(data = {}, context = {}) {
-        writeLog(data, content, 'crit');
+        writeLog(data, context, 'crit');
     },
     alterLog: function(data = {}, context = {}) {
-        writeLog(data, content, 'alter');
+        writeLog(data, context, 'alter');
     }
 };
 
