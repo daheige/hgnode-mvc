@@ -1,3 +1,5 @@
+# pm2
+```
 pm2是一个node.js的进程管理器，因为nodejs的单进程特性，保存进程不死掉，自动重载是十分重要的，目前只支持liunx平台
 1.安装pm2 :前提安装了node.js
     $ npm install pm2 -g
@@ -68,3 +70,4 @@ $ pm2 resurrect # 重新加载保存的应用列表
 $ pm2 update # Save processes, kill PM2 and restore processes
 $ pm2 generate # Generate a sample json configuration file
 http://www.cnblogs.com/xiashan17/p/5896427.html
+```
